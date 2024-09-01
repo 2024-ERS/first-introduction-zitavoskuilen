@@ -9,8 +9,13 @@ editor:
 ---
 
 # Working with the dplyr and ggplot2 packages
+<<<<<<< HEAD
 My local repo. 
 Load the required libraries:
+=======
+
+Load the required libraries  :
+>>>>>>> b038df2e05ae8742738cb67c768d0d2ec76008b0
 
 ```{r message = FALSE, warning = FALSE}
 # clear the R environment
