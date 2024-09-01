@@ -10,7 +10,7 @@ editor:
 
 # Working with the dplyr and ggplot2 packages
 
-Load the required libraries :
+Load the required libraries  :
 
 ```{r message = FALSE, warning = FALSE}
 # clear the R environment
