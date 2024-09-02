@@ -6,6 +6,8 @@ format: html
 editor: 
   markdown: 
     wrap: 72
+editor_options: 
+  chunk_output_type: console
 ---
 
 # Working with Quarto documents in R
@@ -92,9 +94,16 @@ B <- 10
 # calculate the sum of A and B 
 C <- A + B
 # print the result 
-C
+print(C)
+# calculate the mean of the numbers 1, 3, 7, 12, 46
+my_numbers <- c(1,3,7,12,46)
+base::mean(my_numbers) # from the package base we use the function mean 
 
 ```
+
+the sum of 5 and 10 is 15
+
+make a plot with a figure label and a figure caption
 
 ```{r, message = FALSE, warning = FALSE}
 #| label: fig-histogram
@@ -105,8 +114,11 @@ library(tidyverse)
 set.seed(123)
 # generate 100 random values form a normal distribution with mean=0 and standard deviation 1
 randomvalue <- rnorm(n = 100, mean = 0, sd = 1)
+print(randomvalue)
+mean(randomvalue)
 # convert to a dataframe
 data1<-data.frame(randomvalue)
+print(data1)
 # plot as a histogram
 ggplot2::ggplot(data=data1, 
                 mapping=aes(x=randomvalue)) +
@@ -122,12 +134,12 @@ options to messages and warnings (only add when your codes works well)
 
 ### 4. Redirect the output of a code chunk
 
-In the default settings of R Studio, the output of @fig-histogram above
-is produced "inline", so in the the same window where you read this now.
-This is fine for a final report or supplement, but not desirable when
-developing the code. In that case, go in R Studio to the menu Tools /
-Global Options / Markdown and uncheck the option : "Show output inline
-for all R Markdown documents".\
+In the default settings of R Studio, the output of @fig-histogram
+(refers to the figure above) above is produced "inline", so in the the
+same window where you read this now. This is fine for a final report or
+supplement, but not desirable when developing the code. In that case, go
+in R Studio to the menu Tools / Global Options / Markdown and uncheck
+the option : "Show output inline for all R Markdown documents".\
 Then the output goes to the console and graph window, while this code
 windows stays clean. You can also set it per script in the settings
 option next to "render" in the small window menu bar above.
@@ -162,7 +174,7 @@ set if you want different aspects as the code itself, the output from
 that code, warnings, etc in the output document.
 
 | Execute option: | Descript                                                                                                                                                                                    |
-|-----------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+|------------------|------------------------------------------------------|
 | eval            | Evaluate the code chunk (if false, just echos the code into the output). echo Include the source code in output                                                                             |
 | output          | Include the results of executing the code in the output (true, false, or asis to indicate that the output is raw markdown and should not have any of Quarto’s standard enclosing markdown). |
 | warning         | Include warnings in the output.                                                                                                                                                             |
