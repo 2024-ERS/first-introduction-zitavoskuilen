@@ -2,7 +2,6 @@
 title: "Quarto 1"
 author: "Zita Voskuilen"
 format: html
-editor: visual
 ---
 
 ## Quarto
@@ -31,3 +30,29 @@ The `echo: false` option disables the printing of code (only output is displayed
 3*4
 ```
 
+## making a graph with code from chat gpt
+
+```{r}
+n <- 100
+x <- rnorm(n, mean = 0, sd = 1)
+y <- x * 2 + rnorm(n, mean = 0, sd = 1)
+
+data2 <- data.frame(x = x, y = y)
+library(ggplot2)
+
+plot1 <- ggplot(data = data2, aes( x=x, y=y)) + geom_point(aes(color = y), size = 3, alpha = 0.7) +  # Scatter plot points
+  scale_color_gradient(low = "blue", high = "red") +   # Color gradient from blue to red
+  geom_smooth(method = "lm", se = FALSE, color = "black", linetype = "dashed") + # Add trend line
+  labs(title = "Random Scatter Plot with Trend Line",
+       x = "X Values",
+       y = "Y Values",
+       color = "Y Value") +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(hjust = 0.5, size = 16, face = "bold"),  # Center and style the title
+    axis.title = element_text(size = 12),                             # Style axis titles
+    legend.position = "right"  
+  ) 
+
+print(plot1)
+```
