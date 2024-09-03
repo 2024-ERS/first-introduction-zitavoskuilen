@@ -58,3 +58,12 @@ plot1 <- ggplot(data = data2, aes( x=x, y=y)) + geom_point(aes(color = y), size 
 
 print(plot1)
 ```
+
+```{r}
+
+library(tidyverse)
+test_data_link <- "https://docs.google.com/spreadsheets/d/119ViuNX2_nQwzfIqQYheSEBme98ny8dvZ3hB5MOjMg4/pub?gid=138296846&single=true&output=csv"
+test_data <- read_csv(test_data_link)
+
+
+```
