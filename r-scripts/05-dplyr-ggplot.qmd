@@ -1,6 +1,6 @@
 ---
 title: "Starting with with the dplyr, ggplot2 packages, and the pipe operator |>"
-author: "Han Olff"
+author: "Han Olff changed by zita"
 date: "2024-08-29"
 format: html
 editor: 
@@ -50,6 +50,10 @@ add a regression line through all the years
 
 ```{r}
 
+FactCockleSize1 <-  FactCockleSize[FactCockleSize$thickness_mm != 1732.0, ]
+
+ggplot2::ggplot(data = FactCockleSize1, mapping = aes(x = thickness_mm, y = length_mm, color = as.factor(year),  group = as.factor(year))) + geom_point() + geom_smooth(method = "lm", se = T)
+
 ```
 
 Further explore the plot with a regression line through all the data
@@ -66,6 +70,11 @@ Make same plot but showing a separate regression line per year
 Make a panel plot where with each year is shown as a separate graph
 
 ```{r}
+
+ggplot2::ggplot(data = FactCockleSize1, mapping = aes(x = thickness_mm, y = length_mm, color = as.factor(year),  group = as.factor(year))) + geom_point() + geom_smooth(method = "lm", se = T) +
+  facet_wrap(~ year) 
+
+
 ```
 
 We conclude from this that: \* there were two important outliers in the
