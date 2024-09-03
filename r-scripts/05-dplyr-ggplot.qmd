@@ -52,6 +52,7 @@ add a regression line through all the years
 
 FactCockleSize1 <-  FactCockleSize[FactCockleSize$thickness_mm != 1732.0, ]
 
+
 ggplot2::ggplot(data = FactCockleSize1, mapping = aes(x = thickness_mm, y = length_mm, color = as.factor(year),  group = as.factor(year))) + geom_point() + geom_smooth(method = "lm", se = T)
 
 ```
@@ -59,6 +60,7 @@ ggplot2::ggplot(data = FactCockleSize1, mapping = aes(x = thickness_mm, y = leng
 Further explore the plot with a regression line through all the data
 
 ```{r}
+
 ```
 
 Make same plot but showing a separate regression line per year
