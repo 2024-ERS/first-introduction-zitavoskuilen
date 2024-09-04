@@ -65,36 +65,78 @@ FactCockleSize |> dplyr::filter(thickness_mm>500)
 
 # here we take out the outlier with dplyr
 FactCockleSize <- readr::read_csv("https://docs.google.com/spreadsheets/d/e/2PACX-1vSpormjGiM4uWMTIZYm9Upt5j1Ige_Wu9CrhGGdvjXwxmHP2R6S7JDyEmiGTn3fXihl5s5yBn_sdo8h/pub?gid=1538766002&single=true&output=csv") |> 
-  dplyr::filter(CockleObs_ID!=1531, CockleObs_ID!=469)
+  dplyr::filter(CockleObs_ID!=1531, CockleObs_ID!=469) |>
+  dplyr::mutate(year=factor(year)) # and making year a factor 
 
+print(FactCockleSize)
 
 #finding the other outlier 
 FactCockleSize |> dplyr::filter(thickness_mm>10 & length_mm <5)
 
 # also remove CockleObs_ID 469
 
-ggplot2::ggplot(data = FactCockleSize, mapping = aes(x = thickness_mm, y = length_mm, color = as.factor(year),  group = as.factor(year))) + geom_point() + geom_smooth(method = "lm", se = T)
+# plot the data 
+ggplot2::ggplot(data = FactCockleSize, mapping = aes(x = length_mm, y = thickness_mm, color = as.factor(year),  group = as.factor(year))) + geom_point() + geom_smooth(method = "lm", se = T)
+
+
+
 
 ```
 
 Further explore the plot with a regression line through all the data
 
 ```{r}
+ggplot2::ggplot(data = FactCockleSize, mapping = aes(x = length_mm, y = thickness_mm, color = year,  group = as.factor(year))) + 
+  geom_point() + 
+  geom_smooth(method = "lm")
 
+# calculate a new model
+
+model_lm <- lm((thickness_mm)~(length_mm), data = FactCockleSize)
+summary(model_lm)
+
+# equation : thickness_mm = -0.3534 + 0.6694*length_mm
+# a cockle of length 20mm has a predicted thickness of:
+-0.3534 + 0.6694 * 20
+
+# this regression is significant, the R2 = 0.90, and the P < 0.001 (***)
 ```
 
 Make same plot but showing a separate regression line per year
 
 ```{r}
 # color the points by year, but plot one regression line
+
+    
+data <- FactCockleSize |> # what data to use
+  dplyr::filter(year %in% c(2014, 2015, 2017, 2018, 2020, 2021)) # only use these years
+
+ggplot2::ggplot(data = data, mapping = aes(x = length_mm, y = thickness_mm)) + # use the filtered data
+  geom_point(mapping = aes(col = year)) + # the points are having the color based on year 
+  geom_smooth(method = "lm") # add the linear model smoother    
+  
 ```
 
 Make a panel plot where with each year is shown as a separate graph
 
 ```{r}
 
-ggplot2::ggplot(data = FactCockleSize1, mapping = aes(x = thickness_mm, y = length_mm, color = as.factor(year),  group = as.factor(year))) + geom_point() + geom_smooth(method = "lm", se = T) +
-  facet_wrap(~ year) 
+
+data = FactCockleSize |> # what data to use
+  dplyr::filter(year %in% c(2014, 2015, 2017, 2018, 2020, 2021)) |> # only use these years 
+  dplyr::mutate(year=factor(year)) # and making year a factor
+ggplot2::ggplot(data=data, mapping = aes(x = length_mm, y = thickness_mm)) + # what is on the axes
+  geom_point(mapping = aes(col = year)) + # the points are having the color based on year 
+  geom_smooth(method = "lm") +
+  facet_wrap(~ year) # this makes a panel plot with each year as a separate graph
+  
+
+# dropping the NA values is antoher way to do this
+drop_na(FactCockleSize) |>
+  ggplot2::ggplot(mapping = aes(x = length_mm, y = thickness_mm, color = year,  group = as.factor(year))) + 
+  geom_point() + 
+  geom_smooth(method = "lm") +
+  facet_wrap(~ year)
 
 
 ```
