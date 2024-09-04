@@ -87,16 +87,36 @@ combidat |>
   ) # now it doesn't go below zero anymore 
 
 # predicted at 0.5 m (x)
-# y = b0 + b1x   (b0 is intercept and b1 is the slope, x is elevation, y is no cockles
+# y = b0 + b1x   (b0 is intercept and b1 is the slope, x is elevation, y is no cockles)
+
 
 # show this model as a line in ggplot, with the confidence interval
 
 # fit a better model, using a loess smoother
 # show this model in ggplot
 
-##### plot  how the size (as mean length) of cockles changes with  elevation along the transect
+##### plot how the size (as mean length) of cockles changes with  elevation along the transect
 # omit the observations where length is NA (because no cockles were measures)
+
+combidat |>
+  dplyr::filter(!is.na(avg_l)) |>
+  ggplot(aes(x=elevation_m, y=avg_l)) + geom_point()
+
+
 # fit a quadratic model (second-order polynomial)
+
+combidat |>
+  dplyr::filter(!is.na(avg_l)) |>
+  ggplot(aes(x=elevation_m, y=avg_l)) + geom_point() + 
+  geom_smooth(method = "lm", formula = y ~ poly(x, 2), se = TRUE) # Fit a quadratic model
+
 # show for each point also the standard errors
 # add appropriate labels for the x and y axis 
+
+combidat |>
+  dplyr::filter(!is.na(avg_l)) |>
+  ggplot(aes(x=elevation_m, y=avg_l)) + geom_point() + 
+  geom_smooth(method = "lm", formula = y ~ poly(x, 2), se = TRUE) + 
+  labs(x="Elevation (m)", y="Mean cockle length (mm)")
+
 
