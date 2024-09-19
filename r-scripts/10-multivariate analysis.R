@@ -26,7 +26,7 @@ elevdat
 
 # read the macrotransect clay thickness from the soil profile dataset
 claydat<-readr::read_csv("https://docs.google.com/spreadsheets/d/e/2PACX-1vQyEg6KzIt6SdtSKLKbbL3AtPbVffq-Du-3RY9Xq0T9TwPRFcgvKAYKQx89CKWhpTKczPG9hKVGUfTw/pub?gid=943188085&single=true&output=csv") |>
-  dplyr::filter(Year==2024 & SoilType_ID %in% c("clay","clay-organic") & TransectPoint_ID<=1150) |>
+  dplyr::filter(Year==2023 & SoilType_ID %in% c("clay","clay_organic") & TransectPoint_ID<=1150) |>
   dplyr::select(TransectPoint_ID,corrected_depth) |>     
   group_by(TransectPoint_ID) |> 
   dplyr::summarize(clay_cm=mean(corrected_depth,na.rm=T)) #calculate average clay layer thickness  for each pole
@@ -101,7 +101,7 @@ envdat1<-envdat |>
 pca_env <- stats::prcomp(envdat, center = T, scale = T)
 pca_env
 
-summary(pca)
+summary(pca_env)
 
 pca_env$x
 
@@ -110,7 +110,7 @@ pca_env$x
 # make a biplot (variable scores plus sample score) the pca ordination
 
 
-stats::biplot(pca) 
+stats::biplot(pca_env) 
 
 # add xlab to the pca
 
@@ -141,16 +141,32 @@ vegan::orditorp(nmds_veg, dis = "sp", priority = SpecTotCov, col = "red", pcol =
 #### ordination: compare to a DCA -> decide what ordination we should do, linear or unimodal? 
 # how long are the gradients? Should I use linear (PCA)or unimodal method (NMDS, DCA)
 
+dca <- vegan::decorana(vegdat)
+dca
+
 # first axis is 8.1 standard deviations of species responses
 # result: length of first ordination axis is >8 standard deviations
 # only when <1.5 you can use a PCA or RDA
 # plot the dca results as a biplot
 
+vegan::ordiplot(dca, display = "sites", cex = 0.7, type = "text"
+                ) #npw you can see that the first gradient is more important than the vertical gradient 
+vegan::orditorp(dca, display = "species", priority = SpecTotCov, 
+                col = "red", pcol = "blue", pch = "+", cex = 0.8) # orditorp adds the species with the highest cover to the plot not on top of each other 
+
 ##### fit the environmental factors to the dca ordination surface
+names(envdat)
+
+ef_dca <- vegan::envfit(dca ~ clay_cm + floodprob + elevation_m + DistGulley_m + redox5 + redox10, data = envdat, na.rm= T)
 
 #add the result to the ordination plot as vectors for each variable
+plot(ef_dca)
 
 ##### add contour surfaces to the dca ordination for the relevant abiotic variables
+
+vegan::ordisurf(dca, envdat$clay_cm, add= T, col = "green")
+vegan::ordisurf(dca, envdat$elevation_m, add= T, col = "blue")
+vegan::ordisurf(dca, vegdat$FestuRub, add= T, col = "red")  
 
 ##### make the same plot but using a nmds
 ##### fit the environmental factors to the nmds ordination surface
@@ -163,15 +179,38 @@ vegan::orditorp(nmds_veg, dis = "sp", priority = SpecTotCov, col = "red", pcol =
 
 
 ##### compare an unconstrainted (DCA) and constrained (CCA) ordination
-# did you miss important environmental factors?
+# did you miss important environmental factors? yes, the other soil components 
 # show the results of the detrended correspondence analysis
 
+dca
+
 # the eigenvalues represent the variation explained by each axis
+names(envdat)
+cca1 <-vegan::cca(vegdat ~ clay_cm + floodprob + elevation_m + DistGulley_m + redox5 + redox10, data = envdat)
+summary(cca1)
 
 # kick out variables that are least significant - simplify the model
 
+anova(cca1, by="axis")
+anova(cca1, by="margin")
+
+# redo with only important uncorrealted variables 
+cca2 <-vegan::cca(vegdat ~ floodprob + DistGulley_m, data = envdat)
+summary(cca2)
+anova(cca2, by="axis")
+anova(cca2, by="margin")
 
 # add the environmental factors to the cca ordination plot
+
+vegan::ordiplot(cca2, display = "sites", cex = 1, type = "text", 
+                xlab = "CCA1 (21%)", ylab = "CCA2 (14%)") 
+
+vegan::orditorp(cca2, display = "species", priority = SpecTotCov, 
+                col = "red", pcol = "blue", pch = "+", cex = 1.1) # add the species with the highest cover to make it visible
+
+vegan::ordisurf(cca2, envdat$floodprob, add= T, col = "blue")
+vegan::ordisurf(cca2, envdat$DistGulley_m, add= T, col = "green")
+
 
 
 # test if the variables and axes (margins) are significant
@@ -181,25 +220,54 @@ vegan::orditorp(nmds_veg, dis = "sp", priority = SpecTotCov, col = "red", pcol =
 
 # yes, clay thickness significantly affects vegetation composition
 
+
 ##### cluster analysis (classification) of  communities
 # first calculate a dissimilarity matrix, using Bray-Curtis dissimilarity
 
 
- # show the dissimilarity matrix (1= completely different, 0= exactly the same)
+d <- vegan::vegdist(vegdat, method = "bray")
 
+ # show the dissimilarity matrix (1= completely different, 0= exactly the same)
+d
 
 # now cluster the sites based on similarity in species composition 
 # using average linkage as the sorting algorithm
 
-
+cavg <- hclust(d, method = "average")
+plot(cavg)
 # back to  clustering based on species composition - show the dendrogram and cut in in 4 communities
 
-
+rect.hclust(cavg, k = 4)
+c4 <- cutree(cavg, 4)
+c4
 ##### add the clustering of plots to your cca ordination
+vegan::ordiplot(cca1, display = "sites", cex = 1, type = "text", 
+                xlab = "CCA1 (21%)", ylab = "CCA2 (14%)") 
+
+vegan::orditorp(cca1, display = "species", priority = SpecTotCov, 
+                col = "red", pcol = "blue", pch = "+", cex = 1.1)
+
+vegan::ordihull(cca1, c4, lty = 2, col = "darkgreen", lwd = 2)
 
 #add the vegetation type to the environmental data
 
+envdat2 <- envdat |> 
+  dplyr::mutate(vegtype = factor(c4))
+levels(envdat2$vegtype) <- c("dune", "high saltmarsh", "low saltmarsh", "pioneer zone")
+
+
 # test if DistGulley_m is different between the vegetation types
+
+p1 <- envdat2 |> 
+  ggplot(aes(x = vegtype, y = floodprob)) +
+  geom_boxplot() + 
+  xlab(NULL)
+
+p2 <- envdat2 |> 
+  ggplot(aes(x = vegtype, y = clay_cm)) +
+  geom_boxplot()
+
+p1+p2+patchwork::plot_layout(ncol = 1)
 
 # what do you write: 
 # the vegetation types were significantly different in distance to gulley (F3,18=21.36, P<0.001)
